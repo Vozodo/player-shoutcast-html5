@@ -10,7 +10,7 @@ $nextSong = filter_input(INPUT_GET, 'next', FILTER_VALIDATE_BOOLEAN);
 $historic = filter_input(INPUT_GET, 'historic', FILTER_VALIDATE_BOOLEAN);
 
 // Type of streaming server used, shoutcast or icecast supported
-$streamingType = filter_input(INPUT_GET, 'streamtype', FILTER_SANITIZE_STRING);
+$streamingType = htmlspecialchars(filter_input(INPUT_GET, 'streamtype'));
 
 if(!empty($url)) {
 	if($streamingType === 'shoutcast') {
@@ -90,8 +90,6 @@ if(!empty($url)) {
 
 			$array['streamingId'] = $streamingData[1];
 			$array['listenersMax'] = $streamingData[2];
-			$array['listenersPeak'] = $streamingData[3];
-			$array['listeners'] = $streamingData[4];
 			$array['transmissionFrequency'] = $streamingData[5];	
 			$playingNow = $streamingData[6];
 
@@ -137,45 +135,58 @@ if(!empty($url)) {
 		$url = implode("/", $url_explode);
 		$url = $url."/status-json.xsl";
 
-		// if cURL don't works, use file_get_contents
-		// $curl = curl_init($url);
-		// curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-		// curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-		// curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0');
-			
-		// $data = curl_exec($curl);
-		// curl_close($curl);
-
 		$data = file_get_contents($url);
 
-		if(!empty($data)) {
-
+		if (!empty($data)) {
 			$ice_stats = json_decode($data, true);
-
-			if(is_array($ice_stats["icestats"]["source"])) {
-				$ice_stats_source = $ice_stats["icestats"]["source"][0];
+		
+			if (isset($ice_stats["icestats"]["source"])) {
+				if (is_array($ice_stats["icestats"]["source"])) {
+					$ice_stats_source = $ice_stats["icestats"]["source"][0];
+				} else {
+					$ice_stats_source = $ice_stats["icestats"]["source"];
+				}
+		
+				if (isset($ice_stats_source["bitrate"])) {
+					$array['transmissionFrequency'] = $ice_stats_source["bitrate"];
+		
+					if (isset($ice_stats_source["title"])) {
+						$currently_playing = $ice_stats_source["title"];
+						$currently_playing = explode(" - ", $currently_playing, 2);
+		
+						if (isset($currently_playing[1])) {
+							$array['currentSong'] = $currently_playing[1];
+						} else {
+							$array['currentSong'] = null;
+						}
+		
+						if (isset($currently_playing[0])) {
+							$array['currentArtist'] = explode(";", $currently_playing[0])[0];
+						} else {
+							$array['currentArtist'] = '';
+						}
+		
+						$track_history = file("player.log");
+						$track_list = array_slice($track_history, 0, 20);
+		
+						if (isset($currently_playing[0]) && isset($currently_playing[1]) &&
+							stripos($track_history[0], $currently_playing[0] . " - " . $currently_playing[1]) === false) {
+							array_unshift($track_list, $currently_playing[0] . " - " . $currently_playing[1] . "\n");
+							file_put_contents("player.log", $track_list);
+						}
+					} else {
+						$array = ['error' => 'Title not found in the data'];
+					}
+				} else {
+					$array = ['error' => 'Bitrate not found in the data'];
+				}
 			} else {
-				$ice_stats_source = $ice_stats["icestats"]["source"];
-			}
-			
-			$array['listenersPeak'] = $ice_stats_source["listener_peak"];
-			$array['listeners'] = $ice_stats_source["listeners"];
-			$array['transmissionFrequency'] = $ice_stats_source["bitrate"];	
-			$currently_playing = $ice_stats_source["title"];
-			$currently_playing = explode(" - ", $currently_playing, 2);
-			$array['currentSong'] = $currently_playing[1];
-			$array['currentArtist'] = explode(";",$currently_playing[0])[0];
-
-			// check if it is alredy in played songs and append if necessary
-			$track_history = file("player.log");
-			$track_list = array_slice($track_history, 0, 20);
-			if (stripos($track_history[0], $currently_playing[0]." - ".$currently_playing[1]) === false){
-				array_unshift($track_list, $currently_playing[0]." - ".$currently_playing[1]."\n");
-				file_put_contents("player.log", $track_list);
+				$array = ['error' => 'Source information not found in the data'];
 			}
 		} else {
 			$array = ['error' => 'Failed to fetch data'];
 		}
+		
 
 		$track_history = file("player.log");
 		// remove first element from history

@@ -9,26 +9,26 @@
 */
 
 var settings = {
-    'radio_name': 'Brasil Hits',
+  radio_name: "Radio Test",
 
-    // URL of streaming without / on the final, eg: http://streaming.com:8080
-    'url_streaming': 'https://streaming.brasilhits.com/acc',
+  // URL of streaming without / on the final, eg: http://streaming.com:8080
+  url_streaming: "https://stream.radio.tld/",
 
-    // When choosing icecast, make sure the file 'player.log' in the document root is writeable.
-    // Choose between 'shoutcast' or 'icecast'
-    'streaming_type': 'icecast',
+  // When choosing icecast, make sure the file 'player.log' in the document root is writeable.
+  // Choose between 'shoutcast' or 'icecast'
+  streaming_type: "icecast",
 
-    // Visit https://api.vagalume.com.br/docs/ to get your API key
-    'api_key': '18fe07917957c289983464588aabddfb',
+  // Visit https://api.vagalume.com.br/docs/ to get your API key
+  api_key: "18fe07917957c289983464588aabddfb",
 
-    // Set to true to get the last songs played
-    'historic': true,
+  // Set to true to get the last songs played
+  historic: true,
 
-    // Only for SHOUTCast!
-    // Set to true to show the next song to be played. 
-    // Make sure your streaming show this information!
-    'next_song': false,
+  // Only for SHOUTCast!
+  // Set to true to show the next song to be played.
+  // Make sure your streaming show this information!
+  next_song: false,
 
-    // Path to default cover art when none are found
-    'default_cover_art': 'img/bg-capa.jpg',
+  // Path to default cover art when none are found
+  default_cover_art: "img/bg-capa.jpg",
 };
