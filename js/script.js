@@ -28,6 +28,7 @@ const API_KEY = settings.api_key;
 const HISTORIC = settings.historic;
 const NEXT_SONG = settings.next_song;
 const DEFAULT_COVER_ART = settings.default_cover_art;
+const STATUS_URL = settings.status_url;
 
 window.onload = function () {
   var page = new Page();
@@ -462,6 +463,8 @@ function getStreamingData() {
     "GET",
     "api.php?url=" +
       URL_STREAMING +
+      "&statusurl=" +
+      STATUS_URL +
       "&streamtype=" +
       STREAMING_TYPE +
       "&historic=" +

@@ -12,11 +12,14 @@ var settings = {
   radio_name: "Radio Test",
 
   // URL of streaming without / on the final, eg: http://streaming.com:8080
-  url_streaming: "https://stream.radio.tld/",
+  url_streaming: "https://stream.sunshine.it",
 
   // When choosing icecast, make sure the file 'player.log' in the document root is writeable.
   // Choose between 'shoutcast' or 'icecast'
   streaming_type: "icecast",
+
+  //Only for Azuracast: set Url to status-json.xsl;
+  status_url: "",
 
   // Visit https://api.vagalume.com.br/docs/ to get your API key
   api_key: "18fe07917957c289983464588aabddfb",
